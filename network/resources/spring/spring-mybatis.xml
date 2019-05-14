@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cache="http://www.springframework.org/schema/cache" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:task="http://www.springframework.org/schema/task" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:repository="http://www.springframework.org/schema/data/repository"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
+	default-lazy-init="false">
+
+	<description>MyBatis配置，主要为了提供高效灵活的查询功能支持</description>
+
+    <!-- Multi-db vendor support -->
+	<bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+		<property name="properties">
+			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="properties">
+					<props>
+						<prop key="SQLServer">sqlserver</prop>
+						<prop key="Oracle">oracle</prop>
+						<prop key="MySQL">mysql</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>  
+
+	<!-- APP数据源配置 -->
+	<!-- <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" depends-on="cacheManager"> -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="databaseIdProvider" ref="databaseIdProvider" />
+		<property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+		<property name="typeAliasesPackage" value="com.nuctech" />
+		<!-- 显式指定Mapper文件位置 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/nuctech/**/mapper/*Mapper.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	
+	<!-- 扫描basePackage下所有接口作为Mapper接口-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.nuctech.**.mapper" />
+	</bean>
+    
+</beans>

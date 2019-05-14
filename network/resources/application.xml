@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	
+	<import resource="classpath:spring/spring-*.xml" />
+	<context:property-placeholder location="file:config/jdbc.properties"/>
+<!-- 	<bean id="app" class="com.nuctech.network.service.NetworkTaskService" init-method="init">
+	</bean> -->
+	<context:annotation-config />
+	<context:component-scan base-package="com.nuctech.network">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	
+	<!-- task任务扫描注解 -->
+	<task:annotation-driven/>
+	
+	
+	<!--<aop:aspectj-autoproxy proxy-target-class="true" />-->
+</beans>

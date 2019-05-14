@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nuctech.network.mapper.NetworkStatusMapper">
+	<resultMap id="BaseResultMap" type="com.nuctech.network.model.DeviceInfo">
+		<id column="record_id" property="recordId" />
+		<result column="device_id" property="deviceId" />
+		<result column="eno" property="eno" />
+		<result column="station_id" property="stationId" />
+		<result column="name" property="name" />
+		<result column="device_type" property="deviceType" />
+		<result column="device_model" property="deviceModel" />
+		<result column="status" property="status" />
+		<result column="states" property="states" />
+		<result column="properties" property="properties" />
+		<result column="commands" property="commands" />
+		<result column="url" property="url" />
+		<result column="intervals" property="intervals" />
+		<result column="priority" property="priority" />
+	</resultMap>
+	
+	<resultMap id="ServerStatusMap" type="com.nuctech.network.model.ServerStatus">
+		<id column="record_id" property="recordId" />
+		<result column="station_id" property="stationId" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="ip" property="ip" />
+		<result column="host_port" property="hostPort" />
+		<result column="status" property="status" />
+		<result column="status_update_at" property="statusUpdateAt" />
+		<result column="priority" property="priority" />
+	</resultMap>
+	<!--  deviceinfo sql -->
+	<select id="getDevicesByStationId" resultMap="BaseResultMap">
+		select
+		<if test="selectAllFields == 0">
+			record_id, device_id, eno, station_id, name, device_type, device_model, status,
+			states, properties, commands, url, intervals, priority
+		</if>
+		<if test="selectAllFields == 1">
+			record_id, device_id, eno, station_id, name, device_type, device_model, status,
+			url, intervals, priority
+		</if>
+		from biz_deviceinfo
+		where 1 = 1
+		<if test="stationId != null and stationId != ''">
+			and station_id = #{stationId}
+		</if>
+		order by priority
+	</select>
+	
+	<select id="getDeviceInfoByDeviceType" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+			<if test="selectAllFields == 0">
+				record_id, device_id, eno, station_id, name, device_type, device_model, status, 
+				states, properties, commands, url, intervals, priority
+			</if>
+			<if test="selectAllFields == 1">
+				record_id, device_id, eno, station_id, name, device_type, device_model, status, 
+				url, intervals, priority
+			</if>
+		from biz_deviceinfo
+		where station_id = #{stationId} and device_type = #{deviceType}
+	</select>
+	
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.nuctech.network.model.DeviceInfo">
+		update biz_deviceinfo
+		<set>
+			<if test="deviceId != null">
+				device_id = #{deviceId},
+			</if>
+			<if test="eno != null">
+				eno = #{eno},
+			</if>
+			<if test="stationId != null">
+				station_id = #{stationId},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="deviceType != null">
+				device_type = #{deviceType},
+			</if>
+			<if test="deviceModel != null">
+				device_model = #{deviceModel},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="states != null">
+				states = #{states},
+			</if>
+			<if test="properties != null">
+				properties = #{properties},
+			</if>
+			<if test="commands != null">
+				commands = #{commands},
+			</if>
+			<if test="url != null">
+				url = #{url},
+			</if>
+			<if test="intervals != null">
+				intervals = #{intervals},
+			</if>
+			<if test="priority != null">
+				priority = #{priority},
+			</if>
+		</set>
+		where record_id = #{recordId}
+	</update>
+	<!--  deviceinfo sql -->
+	
+	<!--  serverstatus sql -->
+	<select id="getCenterData" resultMap="ServerStatusMap" parameterType="java.lang.String">
+		select
+
+		record_id, station_id, name, type, ip, host_port, status, status_update_at,
+		priority
+
+		from biz_serverstatus
+		where station_id = #{stationId}
+		and type = "center"
+		order by priority desc
+	</select>
+	
+	<!--  serverstatus sql -->
+</mapper>

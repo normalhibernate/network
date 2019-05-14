@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nuctech.network.mapper.NetworkRecordMapper">
+	<resultMap id="BaseResultMap" type="com.nuctech.network.model.NetworkRecord">
+		<id column="record_id" property="recordId" />
+		<result column="group_id" property="groupId" />
+		<result column="station_id" property="stationId" />
+		<result column="state" property="state" />
+		<result column="counter" property="counter" />
+		<result column="restart_counter" property="restartCounter" />
+		<result column="restart_flag" property="restartFlag" />
+		<result column="at" property="at" />
+		<result column="content" property="content" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		record_id, group_id, station_id, state, counter, restart_counter, restart_flag, at ,content
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from biz_networkrecord
+		where record_id = #{recordId}
+	</select>
+	<select id="selectLastRecord" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from biz_networkrecord
+		order by at desc
+		limit 1
+	</select>
+	<select id="selectLastByCounter" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from biz_networkrecord where counter = #{counter}
+		order by at desc
+		limit 1
+	</select>
+	<select id="selectLastGroupRecord" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from biz_networkrecord 
+		WHERE
+			group_id = (
+				SELECT
+					group_id
+				FROM
+					biz_networkrecord b
+				ORDER BY
+					AT DESC
+				LIMIT 1
+			) order by at desc
+	</select>
+	
+	<select id="selectCount" resultType="java.lang.Integer">
+		select
+		count(*)
+		from biz_networkrecord
+	</select>
+	
+	<select id="selectByPage" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from biz_networkrecord order by at desc limit #{begin}, #{pageSize} 
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from biz_networkrecord
+		where record_id = #{recordId}
+	</delete>
+	<insert id="insert" parameterType="com.nuctech.network.model.NetworkRecord">
+		insert into biz_networkrecord (record_id, group_id, station_id, state,
+		counter, restart_counter,restart_flag, at,content
+		)
+		values (#{recordId}, #{groupId}, #{stationId}, #{state},
+		#{counter}, #{restartCounter}, #{restartFlag}, #{at}, #{content}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.nuctech.network.model.NetworkRecord">
+		insert into biz_networkrecord
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="recordId != null">
+				record_id,
+			</if>
+			<if test="groupId != null">
+				group_id,
+			</if>
+			<if test="stationId != null">
+				station_id,
+			</if>
+			<if test="state != null">
+				state,
+			</if>
+			<if test="counter != null">
+				counter,
+			</if>
+			<if test="restartCounter != null">
+				restart_counter,
+			</if>
+			<if test="restartFlag != null">
+				restart_flag,
+			</if>
+			<if test="at != null">
+				at,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="recordId != null">
+				#{recordId},
+			</if>
+			<if test="groupId != null">
+				#{groupId}
+			</if>
+			<if test="stationId != null">
+				#{stationId},
+			</if>
+			<if test="state != null">
+				#{state},
+			</if>
+			<if test="counter != null">
+				#{counter},
+			</if>
+			<if test="restartCounter != null">
+				#{restartCounter},
+			</if>
+			<if test="restartFlag != null">
+				#{restartFlag},
+			</if>
+			<if test="at != null">
+				#{at},
+			</if>
+			<if test="content != null">
+				#{content}
+			</if>
+			
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.nuctech.network.model.NetworkRecord">
+		update biz_networkrecord
+		<set>
+			<if test="stationId != null">
+				station_id = #{stationId},
+			</if>
+			<if test="state != null">
+				state = #{state},
+			</if>
+			<if test="counter != null">
+				counter = #{counter},
+			</if>
+			<if test="restartCounter != null">
+				restart_counter = #{restartCounter},
+			</if>
+			<if test="at != null">
+				at = #{at},
+			</if>
+		</set>
+		where record_id = #{recordId}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.nuctech.network.model.NetworkRecord">
+		update biz_networkrecord
+		set station_id = #{stationId},
+		state = #{state},
+		counter = #{counter},
+		restart_counter = #{restartCounter},
+		at = #{at}
+		where record_id = #{recordId}
+	</update>
+</mapper>

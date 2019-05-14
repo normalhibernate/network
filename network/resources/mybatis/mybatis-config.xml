@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 加载配置信息 -->
+	<properties resource="properties/jdbc.properties"/>
+	
+	<settings>
+		<!-- 这个配置使全局的映射器启用或禁用缓存 -->
+		<setting name="cacheEnabled" value="true" />
+		
+		<!-- 对于未知的SQL查询，允许返回不同的结果集以达到通用的效果 -->    
+	  	<setting name="multipleResultSetsEnabled" value="true"/>
+	    
+	    <!-- 允许使用列标签代替列名 -->    
+        <setting name="useColumnLabel" value="true"/>
+                
+        <!-- 允许使用自定义的主键值(比如由程序生成的UUID 32位编码作为键值)，数据表的PK生成策略将被覆盖 -->    
+        <setting name="useGeneratedKeys" value="true"/>
+	    
+	    <!-- 全局启用或禁用延迟加载。当禁用时，所有关联对象都会即时加载。 -->
+	    <setting name="lazyLoadingEnabled" value="false" />
+	    
+	    <!-- 设置关联对象加载的形态，此处为按需加载字段(加载字段由SQL指定)，不会加载关联表的所有字段，以提高性能 -->
+	    <setting name="aggressiveLazyLoading" value="true" />
+	    
+	    <!-- 设置超时时间，它决定驱动等待一个数据库响应的时间。 -->
+   		<setting name="defaultStatementTimeout" value="25000" />
+   		
+		<!-- 给予被嵌套的resultMap以字段-属性的映射支持 -->
+		<setting name="autoMappingBehavior" value="FULL" />
+		
+		<!-- 开启驼峰命名转换:Table(create_time) -> Entity(createTime) -->
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		
+		<!-- SQL日志打印 -->
+		<setting name="logPrefix" value="M.SQL."/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="java.util.HashMap" alias="hmap" />
+	</typeAliases>
+	
+	
+	<!-- 
+	
+	<setting name="lazyLoadingEnabled" value="false" />
+    <setting name="aggressiveLazyLoading" value="true" />
+
+           注意这两个属性，需要把属性延迟加载和关联对象加载给关闭了，不然放进redis中的cglib代理对象，
+           在对数据发生更改的时候，会出错
+    
+           在Mapper.xml中添加
+    <cache 
+         eviction="LRU"
+         flushInterval="60000"
+         size="1024"
+         readOnly="true"
+         type="com.tepcb.framework.cache.MybatisRedisCache"
+    /> 
+    eviction是缓存的淘汰算法，可选值有"LRU"、"FIFO"、"SOFT"、"WEAK"，缺省值是LRU
+
+    flashInterval指缓存过期时间，单位为毫秒，60000即为60秒，缺省值为空，即只要容量足够，永不过期[测试结果,无用]
+
+    size指缓存多少个对象，默认值为1024
+
+    readOnly是否只读，如果为true，则所有相同的sql语句返回的是同一个对象（有助于提高性能，但并发操作同一条数据时，可能不安全），
+           如果设置为false，则相同的sql，后面访问的是cache的clone副本。
+	
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	
+	MyBatis mapper文件中的变量引用方式#{}与${}的差别
+	
+	默认情况下,使用#{}语法,MyBatis会产生PreparedStatement语句中，并且安全的设置PreparedStatement参数，这个过程中MyBatis会
+	进行必要的安全检查和转义.
+	
+	结果：
+	1、${}方式会引发SQL注入的问题、同时也会影响SQL语句的预编译，所以从安全性和性能的角度出发，能使用#{}的情况下就不要使用${}
+	2、需要直接插入一个不做任何修改的字符串到SQL语句中。这时候应该使用${}语法。比如，动态SQL中的字段名或表名称，如：
+	   ORDER BY ${columnName}
+	3、当使用${}参数作为字段名或表名时、需指定statementType为“STATEMENT”,如：
+	   <select id="queryMetaList" resultType="Map" statementType="STATEMENT">
+	        Select * from emp where name = ${employeeName} ORDER BY ${columnName}
+	   </select> 
+	   
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	别名：
+	<configuration>
+	    <typeAliases>
+	                 通过package, 可以直接指定package的名字， mybatis会自动扫描你指定包下面的javabean,并且默认设置一个别名，默认的名字为： 
+	      javabean 的首字母小写的非限定类名来作为它的别名。
+	      <package name="com.dy.entity"/>
+	      
+	      <typeAlias alias="UserEntity" type="com.dy.entity.User"/>
+	               
+	               也可在javabean 加上注解@Alias 来自定义别名， 例如： @Alias(user) 
+	  </typeAliases>
+	   
+	  ......
+	   
+	</configuration>
+	  /**
+	   * 以下就是mybatis默认为我们注册的别名
+	   */
+	  public TypeAliasRegistry() {
+	    registerAlias("string", String.class);
+	 
+	    registerAlias("byte", Byte.class);
+	    registerAlias("long", Long.class);
+	    registerAlias("short", Short.class);
+	    registerAlias("int", Integer.class);
+	    registerAlias("integer", Integer.class);
+	    registerAlias("double", Double.class);
+	    registerAlias("float", Float.class);
+	    registerAlias("boolean", Boolean.class);
+	 
+	    registerAlias("byte[]", Byte[].class);
+	    registerAlias("long[]", Long[].class);
+	    registerAlias("short[]", Short[].class);
+	    registerAlias("int[]", Integer[].class);
+	    registerAlias("integer[]", Integer[].class);
+	    registerAlias("double[]", Double[].class);
+	    registerAlias("float[]", Float[].class);
+	    registerAlias("boolean[]", Boolean[].class);
+	 
+	    registerAlias("_byte", byte.class);
+	    registerAlias("_long", long.class);
+	    registerAlias("_short", short.class);
+	    registerAlias("_int", int.class);
+	    registerAlias("_integer", int.class);
+	    registerAlias("_double", double.class);
+	    registerAlias("_float", float.class);
+	    registerAlias("_boolean", boolean.class);
+	 
+	    registerAlias("_byte[]", byte[].class);
+	    registerAlias("_long[]", long[].class);
+	    registerAlias("_short[]", short[].class);
+	    registerAlias("_int[]", int[].class);
+	    registerAlias("_integer[]", int[].class);
+	    registerAlias("_double[]", double[].class);
+	    registerAlias("_float[]", float[].class);
+	    registerAlias("_boolean[]", boolean[].class);
+	 
+	    registerAlias("date", Date.class);
+	    registerAlias("decimal", BigDecimal.class);
+	    registerAlias("bigdecimal", BigDecimal.class);
+	    registerAlias("biginteger", BigInteger.class);
+	    registerAlias("object", Object.class);
+	 
+	    registerAlias("date[]", Date[].class);
+	    registerAlias("decimal[]", BigDecimal[].class);
+	    registerAlias("bigdecimal[]", BigDecimal[].class);
+	    registerAlias("biginteger[]", BigInteger[].class);
+	    registerAlias("object[]", Object[].class);
+	 
+	    registerAlias("map", Map.class);
+	    registerAlias("hashmap", HashMap.class);
+	    registerAlias("list", List.class);
+	    registerAlias("arraylist", ArrayList.class);
+	    registerAlias("collection", Collection.class);
+	    registerAlias("iterator", Iterator.class);
+	 
+	    registerAlias("ResultSet", ResultSet.class);
+	  }
+	-->
+
+</configuration>  
